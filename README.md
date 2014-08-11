@@ -16,4 +16,4 @@ The dictionary can be viewed (with patience) directly online as you would a norm
 [Visit OPTED](http://www.mso.anu.edu.au/~ralph/OPTED/)
 
 <hr/>
-I have stored the html dictionary data in SQLite3 database named *dictionary_db* located in `assets\db\`. It is free to usse as long as you coply with the [LICENSE](https://github.com/lkmhr/DicTic/blob/master/LICENSE.md)
+I have stored the dictionary definitions from HTML in *SQLite3* database named `dictionary_db` located in `assets\db\`. It is free to use as long as you coply with the [LICENSE](https://github.com/lkmhr/DicTic/blob/master/LICENSE.md)
