@@ -14,3 +14,6 @@ The dictionary is set as a word list with definitions, using minimal HTML markup
 The dictionary can be viewed (with patience) directly online as you would a normal printed dictionary, otherwise a user can download the pages and process them in some way on their own machine. The only usage conditions are that if the material is redistributed, the content (not the formatting) remain in the public domain (ie free) and that the content be easily accessible in non-encoded plain text format at no cost to the end user. The origin of the content should also be acknowledged, including OPTED, Project Gutenburg and the 1913 edition of Webster's Unabridged Dictionary. If the material is to be included in commercial products, Project Gutenburg should be contacted first. There are no restrictions for personal or research uses of this material.
 
 [Visit OPTED](http://www.mso.anu.edu.au/~ralph/OPTED/)
+
+<hr/>
+I have stored the html dictionary data in SQLite3 database named *dictionary_db* located in `assets\db\`. It is free to usse as long as you coply with the [LICENSE](https://github.com/lkmhr/DicTic/blob/master/LICENSE.md)
