@@ -39,6 +39,9 @@ Icon
 # Extra Files
 # =========================
 
+#bin
+bin/
+
 # Class files
 *.class
 
