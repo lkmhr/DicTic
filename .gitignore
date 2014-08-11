@@ -34,3 +34,14 @@ Icon
 # Files that might appear on external disk
 .Spotlight-V100
 .Trashes
+
+# =========================
+# Extra Files
+# =========================
+
+# Class files
+*.class
+
+# Android packages and dex
+*.apk
+*.dex
