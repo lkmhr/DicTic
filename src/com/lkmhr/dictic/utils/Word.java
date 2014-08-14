@@ -1,5 +1,11 @@
 package com.lkmhr.dictic.utils;
-
+/**
+ * 
+ * Represents dictionary word. Stores word, part of speech and definition.
+ * 
+ * @author Lokesh
+ *
+ */
 public class Word {
 	private String word;
 	private String partOfSpeech;

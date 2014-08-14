@@ -6,11 +6,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.view.inputmethod.EditorInfo;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -18,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.lkmhr.dictic.utils.DictionaryDatabase;
@@ -42,7 +46,13 @@ public class MainActivity extends Activity {
         
         getActionBar().hide();
         
-        db = new DictionaryDatabase(MainActivity.this);
+        init();
+        setListeners();
+    }
+    
+    // initialize widgets and database
+    private void init(){
+    	db = new DictionaryDatabase(MainActivity.this);
         db.createDatabase();
         
         search = (ImageButton) findViewById(R.id.button_search);
@@ -50,8 +60,13 @@ public class MainActivity extends Activity {
         resultList = (ListView) findViewById(R.id.list_result);
         loader = (ProgressBar) findViewById(R.id.loader);
         loader.setVisibility(View.GONE);
-        
-        search.setOnClickListener(new OnClickListener() {
+    }
+    
+    // set event listeners to search word.
+    private void setListeners() {
+    	
+    	//if user presses search button
+    	search.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -62,8 +77,48 @@ public class MainActivity extends Activity {
 				}
 			}
 		});
+    	
+    	//if user hits Enter or Done button.
+        searchText.setOnEditorActionListener(new OnEditorActionListener() {
+			
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+			            actionId == EditorInfo.IME_ACTION_DONE ||
+			            event.getAction() == KeyEvent.ACTION_DOWN &&
+			            event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+			        if (!event.isShiftPressed()) {
+			        	if(!v.getText().toString().equals("")){
+							new AsyncDataLoader().execute(v.getText().toString());
+						} else {
+							Toast.makeText(MainActivity.this, "Nothing to search?", Toast.LENGTH_SHORT).show();
+						}
+			           return true; 
+			        }                
+			    }
+			    return false; 
+			}
+		});
+        
+        //if user focus changes.
+        searchText.setOnFocusChangeListener(new OnFocusChangeListener() {
+			
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				EditText et = (EditText)v;
+				if(!et.getText().toString().equals("")){
+					new AsyncDataLoader().execute(et.getText().toString());
+				} else {
+					Toast.makeText(MainActivity.this, "Nothing to search?", Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
     }
 
+    //=========================================
+    // MENU OPTIONS
+    //=========================================
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -83,6 +138,56 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
     
+    //=========================================
+    // INNER CLASSES
+    //=========================================
+    
+    /**
+     * 
+     * used to fetch data from the database in a separate thread. 
+     * extends AsyncTask.
+     * 
+     * @author Lokesh
+     *
+     */
+    private class AsyncDataLoader extends AsyncTask<String, String, String> {
+    	
+    	@Override
+    	protected void onPreExecute() {
+    		super.onPreExecute();
+    		
+    		//show loader.
+    		loader.setVisibility(View.VISIBLE);
+    	}
+
+		@Override
+		protected String doInBackground(String... params) {
+			//search for word.
+			words = db.searchWords(params[0]);
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			
+			//initialize and set adapter
+			mAdapter = new DictionaryAdapter(MainActivity.this, words);
+			resultList.setAdapter(mAdapter);
+			
+			//hide loader
+			loader.setVisibility(View.GONE);
+		}
+    }
+    
+    /**
+     * 
+     * Adapter class to populate dictionary data. 
+     * extends ArrayAdapter<Word>.
+     * 
+     * @author Lokesh
+     *
+     */
     private class DictionaryAdapter extends ArrayAdapter<Word> {
     	
     	private List<Word> words;
@@ -109,40 +214,17 @@ public class MainActivity extends Activity {
 			holder.defView = (TextView) convertView.findViewById(R.id.list_item_def);
 			
 			holder.wordView.setText(words.get(position).getWord());
-			holder.posView.setText(" (" + words.get(position).getPartOfSpeech() + ")");
+			holder.posView.setText(words.get(position).getPartOfSpeech());
 			holder.defView.setText(words.get(position).getDefinition());
 			
 			return convertView;
 		}
 		
+		// Used to hold views of the list row.
 		private class ViewHolder {
 			public TextView wordView;
 			public TextView posView;
 			public TextView defView;
 		}
-    }
-    
-    private class AsyncDataLoader extends AsyncTask<String, String, String> {
-    	
-    	@Override
-    	protected void onPreExecute() {
-    		super.onPreExecute();
-    		loader.setVisibility(View.VISIBLE);
-    	}
-
-		@Override
-		protected String doInBackground(String... params) {
-			words = db.searchWords(params[0]);
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			super.onPostExecute(result);
-			mAdapter = new DictionaryAdapter(MainActivity.this, words);
-			resultList.setAdapter(mAdapter);
-			loader.setVisibility(View.GONE);
-		}
-    	
     }
 }
